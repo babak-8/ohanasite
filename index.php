@@ -81,7 +81,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="tr" translate="no">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link id="dynamic-favicon" rel="icon" type="image/jpeg" href="assets/logo.png" />
+    <script>
+      // Make favicon round dynamically
+      window.addEventListener('DOMContentLoaded', () => {
+          const img = new Image();
+          img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = 64;
+              canvas.height = 64;
+              const ctx = canvas.getContext('2d');
+              ctx.beginPath();
+              ctx.arc(32, 32, 32, 0, Math.PI * 2);
+              ctx.closePath();
+              ctx.clip();
+              ctx.drawImage(img, 0, 0, 64, 64);
+              const link = document.getElementById('dynamic-favicon');
+              if (link) {
+                  link.type = 'image/png';
+                  link.href = canvas.toDataURL('image/png');
+              }
+          };
+          img.src = 'assets/logo.jpg';
+      });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#d07c7c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -261,9 +284,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Navbar -->
         <nav class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent" id="navbar">
           <div class="w-full px-4 md:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 md:h-20">
+            <div class="flex items-center justify-between h-16 md:h-[4.5rem]">
               <button class="flex items-center cursor-pointer" onclick="window.scrollTo(0, 0)">
-                <img alt="OHANA" class="h-16 w-16 md:h-20 md:w-20 object-contain invert brightness-0" src="https://public.readdy.ai/ai/img_res/9bf7e42e-8028-4bb4-a44d-d6b6ec0d013b.png">
+                <img id="navbar-logo" alt="OHANA" class="h-16 w-auto md:h-[4.5rem] object-contain hover:opacity-80 transition-opacity drop-shadow-md transform scale-[1.2] md:scale-[1.3] origin-left" src="assets/navbar_logo.png">
               </button>
               <div class="hidden md:flex items-center gap-8">
                 <button class="nav-link text-sm font-medium transition-colors hover:opacity-80 cursor-pointer text-white" data-target="#about" data-i18n="nav_about" data-i18n="nav_about">Hakkımızda</button>
@@ -331,8 +354,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-6 animate-fade-in">
               <img
                 alt="OHANA"
-                class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto object-cover border-2 border-white/30 shadow-2xl"
-                src="https://static.readdy.ai/image/359dcf8f0c1a9000baa87c0d5ca1427c/b3550de0ddd277c1f28ec577f4f6f91b.jpeg"
+                class="w-20 h-20 md:w-24 md:h-24 rounded-full mx-auto object-cover border-2 border-white/30 shadow-2xl " src="assets/logo.jpg"
               />
             </div>
             <h1
@@ -1157,7 +1179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="text-sm text-coral-600" data-i18n="rev_google">
                   Google'da Değerlendirme
                 </div>
-                <div class="text-xs text-coral-500 mt-0.5">
+                <div class="text-xs text-coral-500 mt-0.5" data-i18n="rev_stat_txt">
                   yorum · Restoran
                 </div>
               </div>
@@ -1294,7 +1316,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       Adres
                     </div>
                     <div class="text-sm text-coral-600" data-i18n="map_addr">
-                      Oba, Alanya/Antalya
+                      Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya
                     </div>
                   </div>
                 </div>
@@ -1312,9 +1334,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                       Telefon
                     </div>
                     <a
-                      href="tel:+905383341027"
+                      href="tel:+905303831317"
                       class="text-sm text-coral-600 hover:text-coral-400"
-                      >+90 538 334 10 27</a
+                      >+90 530 383 13 17</a
                     >
                   </div>
                 </div>
@@ -1462,7 +1484,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                data-i18n="map_find">
                 Oba Sahilinde Bizi Bulun
               </h3>
-              <p class="text-sm text-white/70" data-i18n="map_addr">Oba, Alanya/Antalya</p>
+              <p class="text-sm text-white/70" data-i18n="map_addr">Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya</p>
             </div>
             <a
               href="https://www.google.com/maps/search/Ohana+Beach+Restaurant+Oba+Alanya"
@@ -1476,7 +1498,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
 
     <!-- Toast Notification -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 z-50 flex flex-col gap-2 w-[90%] md:w-auto max-w-md"></div>
 
     <script>
     // Premium Toast Notification
@@ -1593,7 +1615,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                   <img
                     alt="OHANA"
                     class="w-16 h-16 rounded-full object-cover shadow-sm border border-coral-200"
-                    src="https://static.readdy.ai/image/359dcf8f0c1a9000baa87c0d5ca1427c/b3550de0ddd277c1f28ec577f4f6f91b.jpeg"
+                    src="assets/logo.jpg"
                   />
                 </div>
                 <p class="text-sm text-coral-700 leading-relaxed mb-4" data-i18n="ft_desc_long">Tutkuyla hizmet, lezzetle buluşan bir deneyim. Oba Alanya'da, Akdeniz'in büyüleyici atmosferinde sizinle buluşuyoruz.</p>
@@ -1611,7 +1633,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     class="w-9 h-9 flex items-center justify-center rounded-full bg-coral-400 text-white hover:bg-coral-500 transition-colors"
                     ><i class="ri-facebook-fill text-sm"></i></a
                   ><a
-                    href="https://wa.me/905383341027"
+                    href="https://wa.me/905303831317"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="w-9 h-9 flex items-center justify-center rounded-full bg-coral-400 text-white hover:bg-coral-500 transition-colors"
@@ -1703,14 +1725,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <ul class="space-y-2.5">
                   <li>
                     <a
-                      href="tel:+905383341027"
+                      href="tel:+905303831317"
                       class="text-sm text-coral-700 hover:text-coral-400"
-                      >+90 538 334 10 27</a
+                      >+90 530 383 13 17</a
                     >
                   </li>
                   <li>
                     <a
-                      href="https://wa.me/905383341027"
+                      href="https://wa.me/905303831317"
                       class="text-sm text-coral-700 hover:text-coral-400"
                       >WhatsApp</a
                     >
@@ -1728,7 +1750,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div
               class="border-t border-coral-200/50 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4"
             >
-              <p class="text-xs text-coral-600" data-i18n="ft_rights">© OHANA BEACH RESTAURANT. Tüm hakları saklıdır.</p>
+              <div class="flex flex-col items-center sm:items-start gap-1">
+                <p class="text-xs text-coral-600" data-i18n="ft_rights">© OHANA BEACH RESTAURANT. Tüm hakları saklıdır.</p>
+                <p class="text-[10px] text-coral-500/80 font-medium tracking-widest uppercase">Powered by Babirapson</p>
+              </div>
               <div class="flex items-center gap-4 text-xs text-coral-500">
                 <span>Instagram</span><span>Facebook</span><span>WhatsApp</span>
               </div>
@@ -1877,7 +1902,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           rev_tag: "Misafir Yorumları",
           rev_google: "Google'da Değerlendirme",
           map_find: "Oba Sahilinde Bizi Bulun",
-          map_addr: "Oba, Alanya/Antalya",
+          map_addr: "Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya",
           ft_brand: "OHANA BEACH RESTAURANT",
 
           map_btn: "Haritada Göster",
@@ -2045,7 +2070,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           rev_tag: "Guest Reviews",
           rev_google: "Rating on Google",
           map_find: "Find Us at Oba Beach",
-          map_addr: "Oba, Alanya/Antalya",
+          map_addr: "Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya",
           ft_brand: "OHANA BEACH RESTAURANT",
 
           map_btn: "Show on Map",
@@ -2213,7 +2238,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           rev_tag: "Отзывы гостей",
           rev_google: "Оценка в Google",
           map_find: "Найдите нас на пляже Оба",
-          map_addr: "Оба, Аланья/Анталья",
+          map_addr: "Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya",
           ft_brand: "OHANA BEACH RESTAURANT",
 
           map_btn: "Показать на карте",
@@ -2381,7 +2406,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           rev_tag: "Gästebewertungen",
           rev_google: "Bewertung auf Google",
           map_find: "Finden Sie uns am Strand von Oba",
-          map_addr: "Oba, Alanya/Antalya",
+          map_addr: "Oba, atatürk cad. ihsan önen sitesi no:3/16, 07400 Alanya/Antalya",
           ft_brand: "OHANA BEACH RESTAURANT",
 
           map_btn: "Auf der Karte anzeigen",
@@ -7326,7 +7351,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           const formData = new FormData(resForm);
           const message = `Merhaba, rezervasyon yaptırmak istiyorum.\n\n*İsim:* ${formData.get("name")}\n*Telefon:* ${formData.get("phone")}\n*Tarih:* ${formData.get("date")}\n*Saat:* ${formData.get("time")}\n*Kişi Sayısı:* ${formData.get("guests")}\n*Oturma Tercihi:* ${formData.get("seating") === "outdoor" ? "Dışarıda" : "İçeride"}\n*Notlar:* ${formData.get("notes") ? formData.get("notes") : "Yok"}`;
           window.open(
-            `https://wa.me/905383341027?text=${encodeURIComponent(message)}`,
+            `https://wa.me/905303831317?text=${encodeURIComponent(message)}`,
             "_blank",
           );
         });

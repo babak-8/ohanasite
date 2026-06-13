@@ -1,0 +1,28 @@
+--- YENİ REZERVASYON ---
+Tarih: 2026-06-12 22:01:20
+YENİ REZERVASYON
+
+Müşteri: Babak
+Telefon: 05314521550
+
+Tarih: 2026-06-18
+Saat: 23:03
+Kişi Sayısı: 4
+Oturma Tercihi: indoor
+
+----------------------
+
+--- YENİ REZERVASYON ---
+Tarih: 2026-06-12 22:02:37
+YENİ REZERVASYON
+
+Müşteri: Babak
+Telefon: 05314521550
+
+Tarih: 2026-06-11
+Saat: 23:04
+Kişi Sayısı: 4
+Oturma Tercihi: outdoor
+
+----------------------
+
