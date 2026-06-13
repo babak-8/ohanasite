@@ -1498,7 +1498,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
 
     <!-- Toast Notification -->
-    <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 z-50 flex flex-col gap-2 w-[90%] md:w-auto max-w-md"></div>
+    <div id="toast-container" class="fixed bottom-4 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 z-50 flex gap-2 w-full sm:w-auto px-4 flex-col items-center md:items-end"></div>
 
     <script>
     // Premium Toast Notification
@@ -1515,8 +1515,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ? '<i class="ri-checkbox-circle-fill text-green-500 text-xl"></i>' 
             : '<i class="ri-error-warning-fill text-red-500 text-xl"></i>';
 
-        toast.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border ${borderColor} ${bgColor} backdrop-blur-md ${textColor} text-sm font-medium transition-all duration-500 transform translate-y-full opacity-0`;
-        toast.innerHTML = `${icon} <span>${message}</span>`;
+        toast.className = `flex items-center gap-3 w-max max-w-[95vw] px-5 py-4 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border ${borderColor} ${bgColor} backdrop-blur-md ${textColor} text-sm font-medium transition-all duration-500 transform translate-y-full opacity-0`;
+        toast.innerHTML = `${icon} <span class="whitespace-nowrap text-xs sm:text-sm">${message}</span>`;
         
         container.appendChild(toast);
         
@@ -1550,6 +1550,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     });
 
+    
+    function validateReservationForm(form) {
+        let isValid = true;
+        const fields = ['name', 'phone', 'date', 'time', 'guests', 'seating'];
+        
+        // Clear previous errors
+        form.querySelectorAll('.error-text').forEach(el => {
+            el.classList.add('hidden');
+            el.innerText = '';
+        });
+        form.querySelectorAll('input, select, textarea').forEach(el => {
+            el.classList.remove('border-red-500');
+        });
+
+        fields.forEach(field => {
+            const input = form.querySelector(`[name="${field}"]`);
+            if (input && !input.value.trim()) {
+                isValid = false;
+                const errSpan = document.getElementById('err-' + field);
+                if (errSpan) {
+                    const errMsgKey = 'err_' + field;
+                    errSpan.setAttribute('data-i18n', errMsgKey);
+                    errSpan.innerText = i18n[currentLang][errMsgKey] || 'Zorunlu alan';
+                    errSpan.classList.remove('hidden');
+                    input.classList.add('border-red-500');
+                }
+            }
+        });
+
+        if (!isValid) {
+            showToast(i18n[currentLang]['toast_err_form'] || 'Lütfen formdaki hataları düzeltin.', 'error');
+        }
+        
+        return isValid;
+    }
+
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -1562,20 +1598,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             el.classList.remove('border-red-500');
         });
 
+        if (!validateReservationForm(this)) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+            return;
+        }
+        
         const formData = new FormData(this);
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerText;
         submitBtn.innerHTML = '<i class="ri-loader-4-line animate-spin inline-block mr-2"></i>Gönderiliyor...';
         submitBtn.disabled = true;
 
-        fetch('index.php', {
+                const payload = Object.fromEntries(formData);
+        payload._subject = "Yeni Rezervasyon: " + (payload.name || "Müşteri");
+        // Disable captcha
+        payload._captcha = "false";
+        
+        fetch('https://formsubmit.co/ajax/babirapson19@gmail.com', {
             method: 'POST',
-            body: formData
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                showToast(i18n[currentLang]['toast_success'] || 'Rezervasyonunuz başarıyla alındı!', 'success');
+            if (data.success === "true" || data.status === "success") {
+                showToast(i18n[currentLang]['toast_success'] || 'Rezervasyonunuz alındı.', 'success');
                 this.reset();
             } else if (data.status === 'error') {
                 showToast(i18n[currentLang]['toast_err_form'] || 'Lütfen formdaki hataları düzeltin.', 'error');
@@ -1911,11 +1962,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           rev_stat_txt: "yorum - Restoran",
           rev_google_txt: "Google Yorumları",
           rev_btn_txt: "Google'da Yorum Yap",
-          rev_txt_1: "Oba sahilinin hemen yanında harika bir konuma sahip. Atmosferi ve manzarası tek kelimeyle büyüleyici. Yemekler, özellikle etleri harikaydı. Personel son derece ilgili.",
-          rev_txt_2: "Absolutely amazing experience! The beachfront view is breathtaking, especially during sunset. The steaks and the seafood were cooked to perfection. Highly recommend!",
-          rev_txt_3: "Ailemle birlikte akşam yemeği için tercih ettik ve çok memnun kaldık. Canlı müzik eşliğinde deniz manzarasına karşı harika bir akşam geçirdik. Çok başarılı.",
-          rev_txt_4: "Mekan çok şık, menü çok zengin. Fiyatlar biraz ortalamanın üstünde ama lezzet kesinlikle buna değiyor. Personel çok güler yüzlü.",
-          rev_txt_5: "Harika bir deneyim! Hem gözünüze hem midenize hitap eden tabaklar var. Özellikle gün batımı manzarası muazzam.",
+          rev_txt_1: "Oba sahilinin hemen yanında harika bir konuma sahip.",
+          rev_txt_2: "Absolutely amazing experience! The beachfront view is breathtaking.",
+          rev_txt_3: "Ailemle birlikte akşam yemeği için tercih ettik ve çok memnun kaldık.",
+          rev_txt_4: "Mekan çok şık, menü çok zengin.",
+          rev_txt_5: "Harika bir deneyim! Hem gözünüze hem midenize hitap eden tabaklar var.",
+          toast_success: "Rezervasyonunuz alındı. En kısa sürede dönüş yapacağız.",
           rev_time_1: "1 hafta önce",
           rev_time_2: "3 hafta önce",
           rev_time_3: "1 ay önce",
@@ -1927,7 +1979,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           err_time: "Lütfen saat seçiniz.",
           err_guests: "Kişi sayısı seçiniz.",
           err_seating: "Lütfen oturma tercihini seçiniz.",
-          toast_success: "Rezervasyonunuz başarıyla alındı! Size en kısa sürede dönüş yapacağız.",
+          
           toast_err_form: "Lütfen formdaki hataları düzeltin.",
           toast_err_server: "Sunucu ile iletişim kurulamadı. Lütfen tekrar deneyin."
 
@@ -2095,7 +2147,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           err_time: "Please select a time.",
           err_guests: "Please select the number of guests.",
           err_seating: "Please select seating preference.",
-          toast_success: "Your reservation has been received! We will get back to you shortly.",
+          toast_success: "Reservation received. We will contact you shortly.",
           toast_err_form: "Please correct the errors in the form.",
           toast_err_server: "Could not communicate with the server. Please try again."
 
@@ -2381,6 +2433,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           form_notes_label: "Notizen (Optional)",
           form_p1_opt: "Auswählen",
           form_s1_opt: "Auswählen",
+          toast_success: "Reservierung erhalten. Wir melden uns in Kürze.",
           cat_turk: "Türkische Küche",
           ft_desc_long: "Ein Erlebnis, bei dem Leidenschaft auf Geschmack trifft. Wir treffen Sie in der bezaubernden Atmosphäre des Mittelmeers in Oba Alanya.",
           ft_contact: "Kontakt",
@@ -2431,7 +2484,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           err_time: "Bitte wählen Sie eine Zeit aus.",
           err_guests: "Bitte geben Sie die Anzahl der Gäste an.",
           err_seating: "Bitte wählen Sie den Sitzplatz aus.",
-          toast_success: "Ihre Reservierung ist eingegangen! Wir werden uns in Kürze bei Ihnen melden.",
+          
           toast_err_form: "Bitte korrigieren Sie die Fehler im Formular.",
           toast_err_server: "Konnte nicht mit dem Server kommunizieren. Bitte versuchen Sie es erneut."
         }
@@ -7346,22 +7399,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         'form[data-readdy-form="ohana-reservation"]',
       );
       if (resForm) {
-        resForm.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const formData = new FormData(resForm);
-          const message = `Merhaba, rezervasyon yaptırmak istiyorum.\n\n*İsim:* ${formData.get("name")}\n*Telefon:* ${formData.get("phone")}\n*Tarih:* ${formData.get("date")}\n*Saat:* ${formData.get("time")}\n*Kişi Sayısı:* ${formData.get("guests")}\n*Oturma Tercihi:* ${formData.get("seating") === "outdoor" ? "Dışarıda" : "İçeride"}\n*Notlar:* ${formData.get("notes") ? formData.get("notes") : "Yok"}`;
-          window.open(
-            `https://wa.me/905303831317?text=${encodeURIComponent(message)}`,
-            "_blank",
-          );
-        });
         const waBtn = document.getElementById("wa-btn");
-        if (waBtn)
-          waBtn.addEventListener("click", () =>
-            resForm.checkValidity()
-              ? resForm.dispatchEvent(new Event("submit"))
-              : resForm.reportValidity(),
-          );
+        if (waBtn) {
+          waBtn.addEventListener("click", () => {
+            if (validateReservationForm(resForm)) {
+              const formData = new FormData(resForm);
+              const message = `Merhaba, rezervasyon yaptırmak istiyorum.\n\n*İsim:* ${formData.get("name")}\n*Telefon:* ${formData.get("phone")}\n*Tarih:* ${formData.get("date")}\n*Saat:* ${formData.get("time")}\n*Kişi Sayısı:* ${formData.get("guests")}\n*Oturma Tercihi:* ${formData.get("seating") === "outdoor" ? "Dışarıda" : "İçeride"}\n*Notlar:* ${formData.get("notes") ? formData.get("notes") : "Yok"}`;
+              window.open(`https://wa.me/905303831317?text=${encodeURIComponent(message)}`, "_blank");
+            } 
+          });
+        }
       }
 
       // Initialize default view
